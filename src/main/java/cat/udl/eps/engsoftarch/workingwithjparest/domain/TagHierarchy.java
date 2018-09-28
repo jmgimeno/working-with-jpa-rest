@@ -1,12 +1,9 @@
 package cat.udl.eps.engsoftarch.workingwithjparest.domain;
 
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Entity
@@ -20,5 +17,7 @@ public class TagHierarchy {
     private String name;
 
     @OneToMany(mappedBy = "definedIn")
-    private Collection<Tag> defines;
+    // If defines is not initialized at construction time, if returns status 500 when POST to /tags/<id>/defines
+    // If it is initialized, it returns status 204 but does not link Tag to TagCollection
+    private Collection<Tag> defines = new ArrayList<>();
 }
