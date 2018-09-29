@@ -122,26 +122,26 @@ public class WorkingWithJpaRestApplicationTests {
     @Transactional
     public void linkTagToTagHierarchyFromTheNonOwningSide() throws Exception {
 
-        String newTagHierarchyUri = getLocation(
+        String tagHierarchyUri = getLocation(
                 doPostMatching("/tagHierarchies",
                         MediaType.APPLICATION_JSON,
                         toJSON(aTagHierarchy),
                         status().isCreated()));
 
-        String newTagUri = getLocation(
+        String tagUri = getLocation(
                 doPostMatching("/tags",
                         MediaType.APPLICATION_JSON,
                         toJSON(aTag),
                         status().isCreated()));
 
-        doPostMatching(newTagHierarchyUri + "/defines",
+        doPostMatching(tagHierarchyUri + "/defines",
                 new MediaType("text", "uri-list"),
-                newTagUri,
+                tagUri,
                 status().isNoContent());
 
         // When defines is not initialized in TagHierarchy constructor status is 500
 
-        assertNotLinkedInRepository(getId(newTagUri));
+        assertLinkedInRepositories(getId(tagUri), getId(tagHierarchyUri));
     }
 
     @Test
@@ -207,8 +207,7 @@ public class WorkingWithJpaRestApplicationTests {
                         assertThat(tagHierarchyRepository.findById(idTagHierarchy))
                                 .hasValueSatisfying(tagHierarchy -> {
                                     assertThat(tag.getDefinedIn()).isEqualTo(tagHierarchy);
-                                    // TODO: Insoect why this assertion fails
-                                    // assertThat(tagHierarchy.getDefines()).contains(tag);
+                                    assertThat(tagHierarchy.getDefines()).contains(tag);
                                 }));
     }
 
