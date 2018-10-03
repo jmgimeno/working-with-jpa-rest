@@ -15,9 +15,4 @@ public class TagHierarchy {
     private Integer id;
 
     private String name;
-
-    @OneToMany(mappedBy = "definedIn")
-    // If defines is not initialized at construction time, if returns status 500 when POST to /tags/<id>/defines
-    // If it is initialized, it returns status 204 but does not link Tag to TagCollection
-    private Collection<Tag> defines = new ArrayList<>();
 }

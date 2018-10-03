@@ -109,39 +109,13 @@ public class WorkingWithJpaRestApplicationTests {
                         status().isCreated()));
 
         mockMvc.perform(
-                put(tagUri + "/definedIn/")
+                put(tagUri + "/tagHierarchy        assertLinkedInRepositories(getId(tagUri), getId(tagHierarchyUri));/")
                     .contentType("text/uri-list")
                     .content(tagHierarchyUri))
                 .andExpect(status().isNoContent())
                 .andDo(print());
 
         assertLinkedInRepositories(getId(tagUri), getId(tagHierarchyUri));
-    }
-
-    @Test
-    @Transactional
-    public void linkTagToTagHierarchyFromTheNonOwningSide() throws Exception {
-
-        String newTagHierarchyUri = getLocation(
-                doPostMatching("/tagHierarchies",
-                        MediaType.APPLICATION_JSON,
-                        toJSON(aTagHierarchy),
-                        status().isCreated()));
-
-        String newTagUri = getLocation(
-                doPostMatching("/tags",
-                        MediaType.APPLICATION_JSON,
-                        toJSON(aTag),
-                        status().isCreated()));
-
-        doPostMatching(newTagHierarchyUri + "/defines",
-                new MediaType("text", "uri-list"),
-                newTagUri,
-                status().isNoContent());
-
-        // When defines is not initialized in TagHierarchy constructor status is 500
-
-        assertNotLinkedInRepository(getId(newTagUri));
     }
 
     @Test
@@ -156,7 +130,7 @@ public class WorkingWithJpaRestApplicationTests {
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("name", "tag");
-        jsonObject.put("definedIn", newTagHierarchyUri);
+        jsonObject.put("tagHierarchy", newTagHierarchyUri);
 
         String newTagUri = getLocation(
                 doPostMatching("/tags",
@@ -206,15 +180,14 @@ public class WorkingWithJpaRestApplicationTests {
                 .hasValueSatisfying(tag ->
                         assertThat(tagHierarchyRepository.findById(idTagHierarchy))
                                 .hasValueSatisfying(tagHierarchy -> {
-                                    assertThat(tag.getDefinedIn()).isEqualTo(tagHierarchy);
-                                    // TODO: Insoect why this assertion fails
-                                    // assertThat(tagHierarchy.getDefines()).contains(tag);
+                                    assertThat(tag.getTagHierarchy()).isEqualTo(tagHierarchy);
+                                    assertThat(tagRepository.findByTagHierarchy(tagHierarchy)).contains(tag);
                                 }));
     }
 
     private void assertNotLinkedInRepository(Integer idTag) {
         assertThat(tagRepository.findById(idTag))
                 .hasValueSatisfying(tag ->
-                        assertThat(tag.getDefinedIn()).isNull());
+                        assertThat(tag.getTagHierarchy()).isNull());
     }
 }

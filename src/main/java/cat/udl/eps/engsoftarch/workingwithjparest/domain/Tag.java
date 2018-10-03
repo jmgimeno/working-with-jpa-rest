@@ -16,5 +16,5 @@ public class Tag {
     private String name;
 
     @ManyToOne
-    private TagHierarchy definedIn;
+    private TagHierarchy tagHierarchy;
 }
